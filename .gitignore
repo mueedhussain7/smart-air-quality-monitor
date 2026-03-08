@@ -1,0 +1,14 @@
+# Credentials & secrets
+.env
+*.env
+docs/broker-details.txt
+
+# Mac junk files
+.DS_Store
+
+# Node modules (for later)
+node_modules/
+
+# Arduino build files
+firmware/.pio/
+firmware/build/
