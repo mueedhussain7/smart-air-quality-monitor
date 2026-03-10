@@ -37,16 +37,27 @@ mqttClient.on('error', (err) => {
 mqttClient.on('message', async (topic, message) => {
   try {
     const data = JSON.parse(message.toString());
-    console.log('Received:', data);
+
+    // Validate all required fields exist and are numbers
+    const { temperature, humidity, gas_ppm, aqi_estimate } = data;
+    if (
+      temperature === undefined || humidity === undefined ||
+      gas_ppm === undefined || aqi_estimate === undefined ||
+      isNaN(temperature) || isNaN(humidity) ||
+      isNaN(gas_ppm) || isNaN(aqi_estimate)
+    ) {
+      console.warn('Invalid data received — skipping:', data);
+      return;
+    }
 
     await pool.query(
       `INSERT INTO readings (temperature, humidity, gas_ppm, aqi_estimate)
        VALUES ($1, $2, $3, $4)`,
-      [data.temperature, data.humidity, data.gas_ppm, data.aqi_estimate]
+      [temperature, humidity, gas_ppm, aqi_estimate]
     );
     console.log('Saved to database');
   } catch (err) {
-    console.error('Error saving reading:', err.message);
+    console.warn('Could not parse message — skipping:', err.message);
   }
 });
 
