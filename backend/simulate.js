@@ -20,7 +20,7 @@ client.on('connect', () => {
     };
 
     client.publish('sensors/room1/air', JSON.stringify(fakeData));
-    console.log('📤 Sent:', fakeData);
+    console.log('Sent:', fakeData);
   }, 5000);
 });
 

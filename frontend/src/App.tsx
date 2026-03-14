@@ -16,7 +16,7 @@ export default function App() {
 
   return (
     <div style={{ display: 'flex', minHeight: '100vh', background: bg, transition: 'all 0.3s' }}>
-      <Sidebar dark={dark} page={page} setPage={setPage} />
+      <Sidebar dark={dark} page={page} setPage={setPage} setDark={setDark} />
       <main style={{ flex: 1, padding: '28px', overflowY: 'auto', minWidth: 0 }}>
         {page === 'dashboard' && <Dashboard dark={dark} threshold={threshold} refresh={refresh} />}
         {page === 'analytics' && <Analytics dark={dark} />}

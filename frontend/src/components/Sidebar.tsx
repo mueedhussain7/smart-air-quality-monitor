@@ -4,6 +4,7 @@ interface Props {
   dark: boolean
   page: Page
   setPage: (p: Page) => void
+  setDark: (d: boolean) => void
   unreadAlerts?: number
 }
 
@@ -11,19 +12,19 @@ const MONO = "'DM Mono', monospace"
 const BODY = "'DM Sans', sans-serif"
 
 const T = {
-  dark:  { sidebar: '#0B1526', divider: '#111E33', textSub: '#5B7FA6', cyan: '#00D4FF', green: '#00E5A0', greenSoft: '#00E5A015', red: '#FF4560' },
+  dark: { sidebar: '#0B1526', divider: '#111E33', textSub: '#5B7FA6', cyan: '#00D4FF', green: '#00E5A0', greenSoft: '#00E5A015', red: '#FF4560' },
   light: { sidebar: '#FFFFFF', divider: '#E8F0FA', textSub: '#5B7FA6', cyan: '#0096CC', green: '#00A870', greenSoft: '#00A87015', red: '#E02040' },
 }
 
 const NAV: { id: Page; icon: string; label: string }[] = [
-  { id: 'dashboard', icon: '⬡', label: 'Dashboard'    },
-  { id: 'analytics', icon: '◈', label: 'Analytics'    },
-  { id: 'alerts',    icon: '⚑', label: 'Alerts'       },
-  { id: 'system',    icon: '◉', label: 'System Status' },
-  { id: 'settings',  icon: '⚙', label: 'Settings'     },
+  { id: 'dashboard', icon: '⬡', label: 'Dashboard' },
+  { id: 'analytics', icon: '◈', label: 'Analytics' },
+  { id: 'alerts', icon: '⚑', label: 'Alerts' },
+  { id: 'system', icon: '◉', label: 'System Status' },
+  { id: 'settings', icon: '⚙', label: 'Settings' },
 ]
 
-export default function Sidebar({ dark, page, setPage, unreadAlerts = 0 }: Props) {
+export default function Sidebar({ dark, page, setPage, setDark, unreadAlerts = 0 }: Props) {
   const t = dark ? T.dark : T.light
 
   return (
@@ -101,11 +102,13 @@ export default function Sidebar({ dark, page, setPage, unreadAlerts = 0 }: Props
       <div style={{ padding: '14px 18px', borderTop: `1px solid ${t.divider}` }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <span style={{ fontSize: '11px', color: t.textSub }}>{dark ? 'Dark' : 'Light'} Mode</span>
-          <div style={{
-            width: '44px', height: '24px', borderRadius: '12px',
-            background: dark ? t.cyan : '#A0B8D0',
-            position: 'relative', transition: 'all 0.3s',
-          }}>
+          <div onClick={() => setDark(!dark)}
+            style={{
+              width: '44px', height: '24px', borderRadius: '12px',
+              background: dark ? t.cyan : '#A0B8D0',
+              position: 'relative', transition: 'all 0.3s', cursor: 'pointer',
+            }}
+          >
             <div style={{
               width: '18px', height: '18px', borderRadius: '50%',
               background: 'white', position: 'absolute', top: '3px',
@@ -115,7 +118,6 @@ export default function Sidebar({ dark, page, setPage, unreadAlerts = 0 }: Props
           </div>
         </div>
       </div>
-
     </aside>
   )
 }
