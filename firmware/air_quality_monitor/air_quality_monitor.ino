@@ -121,7 +121,7 @@ void loop() {
   // ── Publish to MQTT ───────────────────────────────────────
   if (WiFi.status() == WL_CONNECTED && mqttClient.connected()) {
     if (mqttClient.publish(MQTT_TOPIC, payload.c_str())) {
-      Serial.println("📤 Published: " + payload);
+      Serial.println("Published: " + payload);
     } else {
       Serial.println("Publish failed!");
     }
