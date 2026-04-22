@@ -38,17 +38,19 @@ mqttClient.on('error', (err) => {
 //Save incoming MQTT messages to database
 mqttClient.on('message', async (topic, message) => {
   try {
-    const data = JSON.parse(message.toString());
+    const raw = message.toString().trim();
+    if (!raw || !raw.startsWith('{')) return;
 
-    // Validate all required fields exist and are numbers
-    const { temperature, humidity, gas_ppm, aqi_estimate } = data;
-    if (
-      temperature === undefined || humidity === undefined ||
-      gas_ppm === undefined || aqi_estimate === undefined ||
-      isNaN(temperature) || isNaN(humidity) ||
-      isNaN(gas_ppm) || isNaN(aqi_estimate)
-    ) {
-      console.warn('Invalid data received — skipping:', data);
+    const data = JSON.parse(raw);
+    console.log('Received:', data);
+
+    const temperature  = parseFloat(data.temperature);
+    const humidity     = parseFloat(data.humidity);
+    const gas_ppm      = parseFloat(data.gas_ppm);
+    const aqi_estimate = parseInt(data.aqi_estimate);
+
+    if (isNaN(temperature) || isNaN(humidity) || isNaN(gas_ppm) || isNaN(aqi_estimate)) {
+      console.warn('⚠️ Invalid data — skipping');
       return;
     }
 
@@ -59,7 +61,7 @@ mqttClient.on('message', async (topic, message) => {
     );
     console.log('Saved to database');
   } catch (err) {
-    console.warn('Could not parse message — skipping:', err.message);
+    console.warn('Could not process message:', err.message);
   }
 });
 
