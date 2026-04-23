@@ -8,14 +8,14 @@ const MONO = "'DM Mono', monospace"
 const BODY = "'DM Sans', sans-serif"
 
 const T = {
-  dark:  { card: '#0F1E35', cardBorder: '#162440', text: '#E8F4FF', textSub: '#5B7FA6', textMuted: '#2D4A6E', cyan: '#00D4FF', cyanSoft: '#00D4FF15', green: '#00E5A0', amber: '#FFB020', red: '#FF4560', divider: '#111E33' },
+  dark: { card: '#0F1E35', cardBorder: '#162440', text: '#E8F4FF', textSub: '#5B7FA6', textMuted: '#2D4A6E', cyan: '#00D4FF', cyanSoft: '#00D4FF15', green: '#00E5A0', amber: '#FFB020', red: '#FF4560', divider: '#111E33' },
   light: { card: '#FFFFFF', cardBorder: '#DCE8F7', text: '#0B1526', textSub: '#5B7FA6', textMuted: '#A0B8D0', cyan: '#0096CC', cyanSoft: '#0096CC15', green: '#00A870', amber: '#E08000', red: '#E02040', divider: '#E8F0FA' },
 }
 
 function gasStatus(ppm: number, threshold: number) {
-  if (ppm < threshold * 0.45) return { label: 'Good',     color: 'green' }
+  if (ppm < threshold * 0.45) return { label: 'Good', color: 'green' }
   if (ppm < threshold * 0.75) return { label: 'Moderate', color: 'amber' }
-  return                             { label: 'Danger',   color: 'red'   }
+  return { label: 'Danger', color: 'red' }
 }
 
 function Spark({ data, color }: { data: number[]; color: string }) {
@@ -27,8 +27,8 @@ function Spark({ data, color }: { data: number[]; color: string }) {
     <svg width={W} height={H} style={{ display: 'block' }}>
       <defs>
         <linearGradient id={id} x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%"   stopColor={color} stopOpacity="0.3" />
-          <stop offset="100%" stopColor={color} stopOpacity="0"   />
+          <stop offset="0%" stopColor={color} stopOpacity="0.3" />
+          <stop offset="100%" stopColor={color} stopOpacity="0" />
         </linearGradient>
       </defs>
       <polygon points={`0,${H} ${pts} ${W},${H}`} fill={`url(#${id})`} />
@@ -64,8 +64,8 @@ function AreaChart({ data, field, color }: { data: Reading[]; field: keyof Readi
     <svg viewBox={`0 0 ${W} ${H}`} style={{ width: '100%', height: '120px' }} preserveAspectRatio="none">
       <defs>
         <linearGradient id={id} x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%"   stopColor={color} stopOpacity="0.3" />
-          <stop offset="100%" stopColor={color} stopOpacity="0"   />
+          <stop offset="0%" stopColor={color} stopOpacity="0.3" />
+          <stop offset="100%" stopColor={color} stopOpacity="0" />
         </linearGradient>
       </defs>
       <path d={`M0,${H} ${pts.map(p => 'L' + p).join(' ')} L${W},${H} Z`} fill={`url(#${id})`} />
@@ -74,12 +74,20 @@ function AreaChart({ data, field, color }: { data: Reading[]; field: keyof Readi
   )
 }
 
+interface OutdoorAQI {
+  aqi: number
+  city: string
+  time: string
+  dominantPollutant: string
+}
+
 export default function Dashboard({ dark, threshold, refresh }: Props) {
   const t = dark ? T.dark : T.light
-  const [latest, setLatest]   = useState<Reading | null>(null)
+  const [latest, setLatest] = useState<Reading | null>(null)
   const [history, setHistory] = useState<Reading[]>([])
-  const [metric, setMetric]   = useState<keyof Reading>('gas_ppm')
+  const [metric, setMetric] = useState<keyof Reading>('gas_ppm')
   const [loading, setLoading] = useState(true)
+  const [outdoorAQI, setOutdoorAQI] = useState<OutdoorAQI | null>(null)
 
   const fetchData = async () => {
     try {
@@ -95,10 +103,24 @@ export default function Dashboard({ dark, threshold, refresh }: Props) {
     }
   }
 
+  const fetchOutdoor = async () => {
+    try {
+      const res = await axios.get('http://localhost:3000/api/outdoor')
+      setOutdoorAQI(res.data)
+    } catch {
+      // outdoor data not available
+    }
+  }
+
   useEffect(() => {
     fetchData()
+    fetchOutdoor()
     const id = setInterval(fetchData, refresh * 1000)
-    return () => clearInterval(id)
+    const outdoorId = setInterval(fetchOutdoor, 10 * 60 * 1000)
+    return () => {
+      clearInterval(id)
+      clearInterval(outdoorId)
+    }
   }, [refresh])
 
   if (loading) return (
@@ -111,21 +133,21 @@ export default function Dashboard({ dark, threshold, refresh }: Props) {
     </div>
   )
 
-  const st  = gasStatus(latest.gas_ppm, threshold)
+  const st = gasStatus(latest.gas_ppm, threshold)
   const statusColor = t[st.color as keyof typeof t] as string
 
   const cards = [
-    { key: 'temperature' as keyof Reading, label: 'Temperature', value: `${latest.temperature}°C`, color: t.cyan,    icon: '🌡', max: 40   },
-    { key: 'humidity'    as keyof Reading, label: 'Humidity',    value: `${latest.humidity}%`,     color: '#7C9FFF', icon: '💧', max: 100  },
-    { key: 'gas_ppm'     as keyof Reading, label: 'Gas Level',   value: `${latest.gas_ppm} ppm`,   color: statusColor,icon:'⬡', max: 2000 },
-    { key: 'aqi_estimate'as keyof Reading, label: 'AQI',         value: `${latest.aqi_estimate}`,  color: t.green,   icon: '◈', max: 200  },
+    { key: 'temperature' as keyof Reading, label: 'Temperature', value: `${latest.temperature}°C`, color: t.cyan, icon: '🌡', max: 40 },
+    { key: 'humidity' as keyof Reading, label: 'Humidity', value: `${latest.humidity}%`, color: '#7C9FFF', icon: '💧', max: 100 },
+    { key: 'gas_ppm' as keyof Reading, label: 'Gas Level', value: `${latest.gas_ppm} ppm`, color: statusColor, icon: '⬡', max: 2000 },
+    { key: 'aqi_estimate' as keyof Reading, label: 'AQI', value: `${latest.aqi_estimate}`, color: t.green, icon: '◈', max: 200 },
   ]
 
   const metrics = [
-    { key: 'temperature'  as keyof Reading, label: 'Temp °C',  color: t.cyan    },
-    { key: 'humidity'     as keyof Reading, label: 'Humidity', color: '#7C9FFF' },
-    { key: 'gas_ppm'      as keyof Reading, label: 'Gas ppm',  color: t.red     },
-    { key: 'aqi_estimate' as keyof Reading, label: 'AQI',      color: t.green   },
+    { key: 'temperature' as keyof Reading, label: 'Temp °C', color: t.cyan },
+    { key: 'humidity' as keyof Reading, label: 'Humidity', color: '#7C9FFF' },
+    { key: 'gas_ppm' as keyof Reading, label: 'Gas ppm', color: t.red },
+    { key: 'aqi_estimate' as keyof Reading, label: 'AQI', color: t.green },
   ]
 
   const selM = metrics.find(m => m.key === metric)!
@@ -200,6 +222,35 @@ export default function Dashboard({ dark, threshold, refresh }: Props) {
           </div>
         ))}
       </div>
+
+      {/* Indoor vs Outdoor Comparison */}
+      {outdoorAQI && (
+        <div style={{
+          background: t.card, border: `1px solid ${t.cardBorder}`,
+          borderRadius: '14px', padding: '16px', marginBottom: '18px',
+          boxShadow: dark ? '0 4px 24px rgba(0,0,0,0.4)' : '0 2px 16px rgba(0,100,200,0.07)',
+          display: 'flex', alignItems: 'center', gap: '20px',
+        }}>
+          <div style={{ flex: 1, textAlign: 'center' }}>
+            <p style={{ color: t.textSub, fontSize: '10px', fontWeight: 700, margin: '0 0 6px', textTransform: 'uppercase', letterSpacing: '0.8px', fontFamily: MONO }}>Indoor AQI</p>
+            <p style={{ fontSize: '32px', fontWeight: 700, margin: 0, fontFamily: MONO, color: t.green }}>{latest.aqi_estimate}</p>
+            <p style={{ fontSize: '11px', color: t.textSub, margin: '4px 0 0' }}>Room 1 · Sensor</p>
+          </div>
+          <div style={{ fontSize: '24px', color: t.textSub }}>vs</div>
+          <div style={{ flex: 1, textAlign: 'center' }}>
+            <p style={{ color: t.textSub, fontSize: '10px', fontWeight: 700, margin: '0 0 6px', textTransform: 'uppercase', letterSpacing: '0.8px', fontFamily: MONO }}>Outdoor AQI</p>
+            <p style={{ fontSize: '32px', fontWeight: 700, margin: 0, fontFamily: MONO, color: t.cyan }}>{outdoorAQI.aqi}</p>
+            <p style={{ fontSize: '11px', color: t.textSub, margin: '4px 0 0' }}>{outdoorAQI.city}</p>
+          </div>
+          <div style={{ flex: 1, textAlign: 'center' }}>
+            <p style={{ color: t.textSub, fontSize: '10px', fontWeight: 700, margin: '0 0 6px', textTransform: 'uppercase', letterSpacing: '0.8px', fontFamily: MONO }}>Verdict</p>
+            <p style={{ fontSize: '16px', fontWeight: 700, margin: 0, color: latest.aqi_estimate <= outdoorAQI.aqi ? t.green : t.red }}>
+              {latest.aqi_estimate <= outdoorAQI.aqi ? '✅ Indoor Better' : '⚠️ Indoor Worse'}
+            </p>
+            <p style={{ fontSize: '11px', color: t.textSub, margin: '4px 0 0' }}>Dominant: {outdoorAQI.dominantPollutant?.toUpperCase()}</p>
+          </div>
+        </div>
+      )}
 
       {/* Trend chart */}
       <div style={{
