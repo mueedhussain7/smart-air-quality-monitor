@@ -2,6 +2,7 @@ const express = require('express');
 const mqtt = require('mqtt');
 const { Pool } = require('pg');
 require('dotenv').config();
+const https = require('https');
 
 const app = express();
 const cors = require('cors')
@@ -99,4 +100,46 @@ app.get('/api/history', async (req, res) => {
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`🚀 Server running on http://localhost:${PORT}`);
+});
+
+// ── Fetch Oslo outdoor AQI from AQICN ────────────────────────
+let osloAQI = null;
+
+function fetchOsloAQI() {
+  const url = `https://api.waqi.info/feed/oslo/?token=${process.env.AQICN_TOKEN}`;
+  https.get(url, (res) => {
+    let data = '';
+    res.on('data', chunk => data += chunk);
+    res.on('end', () => {
+      try {
+        const json = JSON.parse(data);
+        if (json.status === 'ok') {
+          osloAQI = {
+            aqi: json.data.aqi,
+            city: json.data.city.name,
+            time: json.data.time.s,
+            dominantPollutant: json.data.dominentpol,
+          };
+          console.log('🌍 Oslo AQI updated:', osloAQI.aqi);
+        }
+      } catch (err) {
+        console.warn('⚠️ Could not parse AQICN response');
+      }
+    });
+  }).on('error', (err) => {
+    console.warn('⚠️ AQICN fetch failed:', err.message);
+  });
+}
+
+// Fetch immediately and then every 10 minutes
+fetchOsloAQI();
+setInterval(fetchOsloAQI, 10 * 60 * 1000);
+
+// ── GET outdoor AQI ──────────────────────────────────────────
+app.get('/api/outdoor', (req, res) => {
+  if (osloAQI) {
+    res.json(osloAQI);
+  } else {
+    res.status(503).json({ error: 'Outdoor AQI not yet available' });
+  }
 });
