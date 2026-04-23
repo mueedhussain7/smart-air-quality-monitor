@@ -63,7 +63,7 @@ smart-air-quality-monitor/
 ├── firmware/
 │   └── air_quality_monitor/
 │       ├── air_quality_monitor.ino
-│       └── config.h.example
+│       └── config.h
 ├── backend/
 │   ├── server.js
 │   ├── simulate.js
