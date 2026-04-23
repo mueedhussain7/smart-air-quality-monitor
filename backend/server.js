@@ -120,14 +120,14 @@ function fetchOsloAQI() {
             time: json.data.time.s,
             dominantPollutant: json.data.dominentpol,
           };
-          console.log('🌍 Oslo AQI updated:', osloAQI.aqi);
+          console.log('Oslo AQI updated:', osloAQI.aqi);
         }
       } catch (err) {
-        console.warn('⚠️ Could not parse AQICN response');
+        console.warn('Could not parse AQICN response');
       }
     });
   }).on('error', (err) => {
-    console.warn('⚠️ AQICN fetch failed:', err.message);
+    console.warn('AQICN fetch failed:', err.message);
   });
 }
 

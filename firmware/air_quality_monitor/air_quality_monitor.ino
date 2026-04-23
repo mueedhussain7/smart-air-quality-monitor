@@ -7,7 +7,7 @@
 // ── Sensor pins ──────────────────────────────────────────────
 DHTesp dht;
 #define DHT_PIN    13
-#define MQ135_PIN  36
+#define MQ135_PIN  39
 
 // ── MQTT port ─────────────────────────────────────────────────
 const int MQTT_PORT = 8883;
