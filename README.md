@@ -57,23 +57,23 @@ React + TypeScript Dashboard (port 5173)
 ---
 
 ## Project Structure
+
+```
 smart-air-quality-monitor/
-├── firmware/                    # ESP32 Arduino firmware
+├── firmware/
 │   └── air_quality_monitor/
 │       ├── air_quality_monitor.ino
-│       └── config.h             # Fill WiFi + MQTT credentials
-├── backend/                     # Node.js + Express server
-│   ├── server.js                # Main server — MQTT + API + DB
-│   ├── simulate.js              # Fake sensor data for testing
-│   └── .env                     # Secrets (not in Git)
-├── frontend/                    # React + TypeScript dashboard
-│   ├── README.md                # Frontend guide and local setup notes
+│       └── config.h.example
+├── backend/
+│   ├── server.js
+│   ├── simulate.js
+│   └── .env
+├── frontend/
 │   └── src/
-│       ├── pages/               # Dashboard, Analytics, Alerts, System Status, Settings
-│       └── components/          # Sidebar, StatusCard, SparkLine, AreaChart
-└── docs/                        # Documentation
-
----
+│       ├── pages/
+│       └── components/
+└── docs/
+```
 
 ## Setup Guide
 
