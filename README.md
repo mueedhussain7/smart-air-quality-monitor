@@ -29,7 +29,7 @@ React + TypeScript Dashboard (port 5173)
 |---|---|---|
 | ESP32 D1 R32 | Microcontroller | CH340 USB driver required on Mac |
 | DHT22 (AM2302) | Temperature & Humidity | Wired to IO13 |
-| MQ-135 | Gas / Air Quality sensor | Wired to IO36, needs 5V |
+| MQ-135 | Gas / Air Quality sensor | Wired to IO39, needs 5V |
 | Breadboard 840pt | Circuit assembly | No soldering needed |
 | Jumper wires | Connections | Male-to-male and male-to-female |
 
@@ -63,6 +63,7 @@ smart-air-quality-monitor/
 ├── firmware/
 │   └── air_quality_monitor/
 │       ├── air_quality_monitor.ino
+│       ├── config.h.example
 │       └── config.h
 ├── backend/
 │   ├── server.js
@@ -74,6 +75,8 @@ smart-air-quality-monitor/
 │       └── components/
 └── docs/
 ```
+> Note: `config.h` contains WiFi and MQTT credentials and is excluded from Git. 
+> Copy `config.h.example` to `config.h` and fill in your credentials.
 
 ## Setup Guide
 
@@ -109,6 +112,7 @@ MQTT_PORT=8883
 MQTT_USERNAME=esp32client
 MQTT_PASSWORD=your_mqtt_password
 PORT=3000
+AQICN_TOKEN=your_aqicn_token_here
 
 Create the PostgreSQL database:
 
@@ -215,6 +219,7 @@ Open [http://localhost:5173](http://localhost:5173)
 |---|---|---|
 | GET | `/api/latest` | Returns the most recent sensor reading |
 | GET | `/api/history?from=...&to=...` | Returns readings within a date range |
+| GET | `/api/outdoor` | Returns current Oslo outdoor AQI from AQICN |
 
 ---
 
