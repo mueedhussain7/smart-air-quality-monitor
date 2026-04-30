@@ -1,0 +1,11 @@
+// Copy this file to config.h and fill in your credentials
+// config.h is excluded from Git to protect your secrets
+
+// WiFi credentials
+#define WIFI_SSID     "your_wifi_name"
+#define WIFI_PASSWORD "your_wifi_password"
+
+// MQTT broker credentials (HiveMQ Cloud)
+#define MQTT_HOST     "your_hivemq_host.s1.eu.hivemq.cloud"
+#define MQTT_USERNAME "esp32client"
+#define MQTT_PASSWORD "your_mqtt_password"
